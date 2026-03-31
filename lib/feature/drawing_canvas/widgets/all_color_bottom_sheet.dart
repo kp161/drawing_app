@@ -76,10 +76,11 @@ class AllColorBottomSheet extends StatelessWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 6,
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 60,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
+                          childAspectRatio: 1,
                         ),
                     itemCount: _colors.length,
                     itemBuilder: (context, index) {

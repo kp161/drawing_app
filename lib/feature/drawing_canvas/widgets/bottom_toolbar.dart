@@ -24,12 +24,11 @@ class BottomToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Detect if we are in landscape to adjust the layout internally
     final bool isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Container(
-      // Added a fixed width for landscape to ensure it doesn't take too much space
+
       width: isLandscape ? 120 : double.infinity,
       padding: EdgeInsets.fromLTRB(
         15,
