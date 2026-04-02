@@ -3,11 +3,15 @@ import 'package:drawing_app/feature/drawing_canvas/models/shape_element.dart';
 import 'package:drawing_app/feature/drawing_canvas/models/shape_spec.dart';
 import 'package:drawing_app/feature/drawing_canvas/models/stroke_element.dart';
 import 'package:drawing_app/feature/drawing_canvas/models/stroke_spec.dart';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 class DrawingController extends ChangeNotifier {
   final List<DrawElement> _elements = <DrawElement>[];
   final List<DrawElement> _redoElements = <DrawElement>[];
+  ui.Picture? _cachedCommittedPicture;
+  Size? _cachedPictureSize;
+  bool _isCacheDirty = true;
 
   List<DrawElement> get elements => List.unmodifiable(_elements);
   bool get canUndo => _elements.isNotEmpty;
@@ -67,6 +71,7 @@ class DrawingController extends ChangeNotifier {
       _elements.add(preview!);
       // Once the user makes a new stroke, redo history becomes invalid.
       _redoElements.clear();
+      _markCacheDirty();
     }
     preview = null;
     _activeStrokeSpec = null;
@@ -81,6 +86,7 @@ class DrawingController extends ChangeNotifier {
     final last = _elements.removeLast();
     _redoElements.add(last);
     preview = null;
+    _markCacheDirty();
     notifyListeners();
   }
 
@@ -89,6 +95,43 @@ class DrawingController extends ChangeNotifier {
     final last = _redoElements.removeLast();
     _elements.add(last);
     preview = null;
+    _markCacheDirty();
     notifyListeners();
+  }
+
+  void drawCommittedLayer(Canvas canvas, Size size) {
+    _rebuildCacheIfNeeded(size);
+    final picture = _cachedCommittedPicture;
+    if (picture != null) {
+      canvas.drawPicture(picture);
+    }
+  }
+
+  void _markCacheDirty() {
+    _isCacheDirty = true;
+  }
+
+  void _rebuildCacheIfNeeded(Size size) {
+    if (!_isCacheDirty &&
+        _cachedCommittedPicture != null &&
+        _cachedPictureSize == size) {
+      return;
+    }
+
+    _cachedCommittedPicture?.dispose();
+    final recorder = ui.PictureRecorder();
+    final cacheCanvas = Canvas(recorder);
+    for (final e in _elements) {
+      e.paint(cacheCanvas);
+    }
+    _cachedCommittedPicture = recorder.endRecording();
+    _cachedPictureSize = size;
+    _isCacheDirty = false;
+  }
+
+  @override
+  void dispose() {
+    _cachedCommittedPicture?.dispose();
+    super.dispose();
   }
 }

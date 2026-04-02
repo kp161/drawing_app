@@ -1,5 +1,7 @@
 import 'package:drawing_app/feature/drawing_canvas/controllers/drawing_controller.dart';
 import 'package:drawing_app/feature/drawing_canvas/controllers/drawing_page_controller.dart';
+import 'package:drawing_app/feature/drawing_canvas/models/shape_spec.dart';
+import 'package:drawing_app/feature/drawing_canvas/models/stroke_spec.dart';
 import 'package:drawing_app/feature/drawing_canvas/sections/canvas_section.dart';
 import 'package:drawing_app/feature/drawing_canvas/sections/brush_bottom_sheet.dart';
 import 'package:drawing_app/feature/drawing_canvas/sections/shape_bottom_sheet.dart';
@@ -26,6 +28,13 @@ class _DrawingPageState extends State<DrawingPage> {
   late final DrawingPageController _controller;
 
   final GlobalKey _canvasKey = GlobalKey();
+  late final ValueNotifier<DrawingToolType> _selectedToolNotifier;
+  late final ValueNotifier<double> _strokeWidthNotifier;
+  late final ValueNotifier<BrushStyleType> _brushStyleNotifier;
+  late final ValueNotifier<double> _opacityNotifier;
+  late final ValueNotifier<ShapeType> _shapeTypeNotifier;
+  late final ValueNotifier<bool> _shapeFilledNotifier;
+  late final ValueNotifier<double> _shapeStrokeWidthNotifier;
 
   @override
   void initState() {
@@ -33,10 +42,24 @@ class _DrawingPageState extends State<DrawingPage> {
     _colorController = ColorSelectionController();
     _drawingController = DrawingController();
     _controller = DrawingPageController(_colorController, _drawingController);
+    _selectedToolNotifier = ValueNotifier<DrawingToolType>(_controller.selectedTool);
+    _strokeWidthNotifier = ValueNotifier<double>(_controller.strokeWidth);
+    _brushStyleNotifier = ValueNotifier<BrushStyleType>(_controller.brushStyle);
+    _opacityNotifier = ValueNotifier<double>(_controller.opacity);
+    _shapeTypeNotifier = ValueNotifier<ShapeType>(_controller.shapeType);
+    _shapeFilledNotifier = ValueNotifier<bool>(_controller.shapeFilled);
+    _shapeStrokeWidthNotifier = ValueNotifier<double>(_controller.shapeStrokeWidth);
   }
 
   @override
   void dispose() {
+    _selectedToolNotifier.dispose();
+    _strokeWidthNotifier.dispose();
+    _brushStyleNotifier.dispose();
+    _opacityNotifier.dispose();
+    _shapeTypeNotifier.dispose();
+    _shapeFilledNotifier.dispose();
+    _shapeStrokeWidthNotifier.dispose();
     _colorController.dispose();
     _drawingController.dispose();
     super.dispose();
@@ -90,24 +113,30 @@ class _DrawingPageState extends State<DrawingPage> {
               ),
               SizedBox(
                 width: isLandscape ? 130 : double.infinity,
-                child: BottomToolbar(
-                  bottomInset: isLandscape
-                      ? 0
-                      : MediaQuery.of(context).padding.bottom,
-                  selectedTool: _controller.selectedTool,
-                  onToolSelected: (tool) {
-                    setState(() {
-                      _controller.selectedTool = tool;
-                    });
-                    _handleToolSelection(tool);
+                child: AnimatedBuilder(
+                  animation: Listenable.merge([
+                    _selectedToolNotifier,
+                    _strokeWidthNotifier,
+                  ]),
+                  builder: (context, _) {
+                    return BottomToolbar(
+                      bottomInset: isLandscape
+                          ? 0
+                          : MediaQuery.of(context).padding.bottom,
+                      selectedTool: _selectedToolNotifier.value,
+                      onToolSelected: (tool) {
+                        _selectedToolNotifier.value = tool;
+                        _controller.selectedTool = tool;
+                        _handleToolSelection(tool);
+                      },
+                      strokeWidth: _strokeWidthNotifier.value,
+                      onStrokeWidthChanged: (v) {
+                        _strokeWidthNotifier.value = v;
+                        _controller.strokeWidth = v;
+                      },
+                      colorController: _colorController,
+                    );
                   },
-                  strokeWidth: _controller.strokeWidth,
-                  onStrokeWidthChanged: (v) {
-                    setState(() {
-                      _controller.strokeWidth = v;
-                    });
-                  },
-                  colorController: _colorController,
                 ),
               ),
             ],
@@ -121,24 +150,40 @@ class _DrawingPageState extends State<DrawingPage> {
     if (tool == DrawingToolType.brush) {
       showBrushBottomSheet(
         context: context,
-        selectedStyle: _controller.brushStyle,
-        strokeWidth: _controller.strokeWidth,
-        opacity: _controller.opacity,
-        onStyleChanged: (s) => setState(() => _controller.brushStyle = s),
-        onStrokeWidthChanged: (v) =>
-            setState(() => _controller.strokeWidth = v),
-        onOpacityChanged: (v) => setState(() => _controller.opacity = v),
+        selectedStyle: _brushStyleNotifier.value,
+        strokeWidth: _strokeWidthNotifier.value,
+        opacity: _opacityNotifier.value,
+        onStyleChanged: (s) {
+          _brushStyleNotifier.value = s;
+          _controller.brushStyle = s;
+        },
+        onStrokeWidthChanged: (v) {
+          _strokeWidthNotifier.value = v;
+          _controller.strokeWidth = v;
+        },
+        onOpacityChanged: (v) {
+          _opacityNotifier.value = v;
+          _controller.opacity = v;
+        },
       );
     } else if (tool == DrawingToolType.shape) {
       showShapesBottomSheet(
         context: context,
-        selectedShape: _controller.shapeType,
-        strokeWidth: _controller.shapeStrokeWidth,
-        isFilled: _controller.shapeFilled,
-        onShapeChanged: (s) => setState(() => _controller.shapeType = s),
-        onStrokeWidthChanged: (v) =>
-            setState(() => _controller.shapeStrokeWidth = v),
-        onFillChanged: (v) => setState(() => _controller.shapeFilled = v),
+        selectedShape: _shapeTypeNotifier.value,
+        strokeWidth: _shapeStrokeWidthNotifier.value,
+        isFilled: _shapeFilledNotifier.value,
+        onShapeChanged: (s) {
+          _shapeTypeNotifier.value = s;
+          _controller.shapeType = s;
+        },
+        onStrokeWidthChanged: (v) {
+          _shapeStrokeWidthNotifier.value = v;
+          _controller.shapeStrokeWidth = v;
+        },
+        onFillChanged: (v) {
+          _shapeFilledNotifier.value = v;
+          _controller.shapeFilled = v;
+        },
       );
     }
   }

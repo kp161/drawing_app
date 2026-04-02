@@ -52,10 +52,7 @@ class CanvasSection extends StatelessWidget {
                     onPanEnd: (_) => onPanEnd(),
                     child: RepaintBoundary(
                       child: AnimatedBuilder(
-                        animation: Listenable.merge([
-                          drawingController,
-                          colorController,
-                        ]),
+                        animation: drawingController,
                         builder: (context, _) {
                           return CustomPaint(
                             painter: DrawingPainter(

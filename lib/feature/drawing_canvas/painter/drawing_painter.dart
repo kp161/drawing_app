@@ -23,9 +23,9 @@ class DrawingPainter extends CustomPainter {
       canvas.drawRect(Offset.zero & size, bg);
     }
 
-    for (final e in controller.elements) {
-      e.paint(canvas);
-    }
+    // Layer 1: cached committed strokes/shapes.
+    controller.drawCommittedLayer(canvas, size);
+    // Layer 2: currently active live element.
     preview?.paint(canvas);
 
     canvas.restore();
