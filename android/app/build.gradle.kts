@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.drawing_app"
+    namespace = "com.infynno.doodlestudio"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,13 +21,29 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.drawing_app"
+        applicationId = "com.infynno.doodlestudio"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+    signingConfigs {
+        create("release") {
+            storeFile = file("D:/Flutter_Projects/drawing_app/doodlestudio-keystore.jks")
+            storePassword = "ksp@1610"
+            keyAlias = "doodlestudio"
+            keyPassword = "ksp@1610"
+        }
+        // The default "debug" signingConfig is already created by the Android Gradle plugin.
+        // If you want to customize it, use getByName("debug") instead of create("debug").
+        getByName("debug") {
+            storeFile = file("D:/Flutter_Projects/drawing_app/doodlestudio-keystore.jks")
+            storePassword = "ksp@1610"
+            keyAlias = "doodlestudio"
+            keyPassword = "ksp@1610"
+        }
     }
 
     buildTypes {
