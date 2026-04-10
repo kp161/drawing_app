@@ -106,7 +106,7 @@ class DrawingTools extends StatelessWidget {
             style: GoogleFonts.fredoka(
               fontSize: isLandscape
                   ? 9
-                  : 11, // Tiny bit smaller text for landscape
+                  : 11,
               fontWeight: FontWeight.w600,
               color: isSelected ? Colors.deepPurple : Colors.black87,
             ),

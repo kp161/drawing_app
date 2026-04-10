@@ -56,15 +56,15 @@ class BottomToolbar extends StatelessWidget {
               ),
       ),
       child: isLandscape
-          ? _buildVerticalLayout() // For the side of the screen
-          : _buildHorizontalLayout(), // For the bottom of the screen
+          ? _buildVerticalLayout() 
+          : _buildHorizontalLayout(),
     );
   }
 
   // --- PORTRAIT MODE (Bottom) ---
   Widget _buildHorizontalLayout() {
     return Column(
-      mainAxisSize: MainAxisSize.min, // Takes only needed space
+      mainAxisSize: MainAxisSize.min, 
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DrawingTools(
@@ -92,10 +92,8 @@ class BottomToolbar extends StatelessWidget {
             ),
           ],
         ),
-        // Slider is wrapped to ensure it uses the full width properly
         SliderTheme(
           data: SliderThemeData(
-            // padding: EdgeInsets.zero, // Removes default slider gaps
             trackHeight: 4,
           ),
           child: Slider(
@@ -117,7 +115,6 @@ class BottomToolbar extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // In landscape, we stack the tool icons vertically
           DrawingTools(
             selectedTool: selectedTool,
             onToolSelected: onToolSelected,
@@ -158,7 +155,6 @@ class BottomToolbar extends StatelessWidget {
           ),
 
           const Divider(height: 30),
-          // For ColorPicker, ensure it wraps or scrolls vertically
           ColorPickerRow(controller: colorController),
         ],
       ),
