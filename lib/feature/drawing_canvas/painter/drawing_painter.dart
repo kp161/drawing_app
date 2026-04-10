@@ -15,7 +15,6 @@ class DrawingPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Needed so BlendMode.clear erases correctly.
     canvas.saveLayer(Offset.zero & size, Paint());
 
     if (backgroundColor != Colors.transparent) {
@@ -23,9 +22,7 @@ class DrawingPainter extends CustomPainter {
       canvas.drawRect(Offset.zero & size, bg);
     }
 
-    // Layer 1: cached committed strokes/shapes.
     controller.drawCommittedLayer(canvas, size);
-    // Layer 2: currently active live element.
     preview?.paint(canvas);
 
     canvas.restore();
@@ -33,9 +30,6 @@ class DrawingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant DrawingPainter oldDelegate) {
-    // We repaint whenever this painter is rebuilt (AnimatedBuilder listens to the
-    // controller). Undo/redo changes the controller's internal element list
-    // without changing `preview`, so we must not rely only on references.
     return true;
   }
 }
