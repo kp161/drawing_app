@@ -11,7 +11,7 @@ class DrawingPainter extends CustomPainter {
     required this.controller,
     required this.preview,
     required this.backgroundColor,
-  });
+  }): super(repaint: controller);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -30,6 +30,7 @@ class DrawingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant DrawingPainter oldDelegate) {
-    return true;
+    return oldDelegate.controller != controller ||
+        oldDelegate.preview != preview;
   }
 }

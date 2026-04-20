@@ -82,18 +82,20 @@ class DrawingController extends ChangeNotifier {
   }
 
   void undo() {
-    if (!canUndo) return;
-    final last = _elements.removeLast();
-    _redoElements.add(last);
+    if (_elements.isEmpty) return;
+
+    _redoElements.add(_elements.removeLast());
+
     preview = null;
     _markCacheDirty();
     notifyListeners();
   }
 
   void redo() {
-    if (!canRedo) return;
-    final last = _redoElements.removeLast();
-    _elements.add(last);
+    if (_redoElements.isEmpty) return;
+
+    _elements.add(_redoElements.removeLast());
+
     preview = null;
     _markCacheDirty();
     notifyListeners();

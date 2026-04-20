@@ -8,8 +8,9 @@ import 'package:flutter/material.dart';
 class StrokeElement extends DrawElement {
   final List<Offset> points;
   final StrokeSpec spec;
+  List<Offset>? sprayDots;
 
-  const StrokeElement({required this.points, required this.spec});
+  StrokeElement({required this.points, required this.spec, this.sprayDots});
 
   @override
   void paint(Canvas canvas) {
@@ -217,24 +218,37 @@ class StrokeElement extends DrawElement {
     }
   }
 
-  void _paintSpray(Canvas canvas, Paint basePaint) {
+  void _generateSprayDots() {
+    if (sprayDots != null) return;
+
     final rnd = math.Random(points.hashCode);
+
+    final radius = math.max(6.0, spec.width * 1.3);
+    final dotsPerPoint = (spec.width * 2.2).clamp(10.0, 60.0).toInt();
+
+    sprayDots = [];
+
+    for (final p in points) {
+      for (int i = 0; i < dotsPerPoint; i++) {
+        final a = rnd.nextDouble() * math.pi * 2;
+        final r = rnd.nextDouble() * radius;
+
+        sprayDots!.add(p + Offset(math.cos(a) * r, math.sin(a) * r));
+      }
+    }
+  }
+
+  void _paintSpray(Canvas canvas, Paint basePaint) {
+    _generateSprayDots();
+
     final dotPaint = Paint()
       ..style = PaintingStyle.fill
       ..color = basePaint.color.withValues(
         alpha: (basePaint.color.a * 0.35).clamp(0.0, 1.0),
       );
 
-    final radius = math.max(6.0, spec.width * 1.3);
-    final dotsPerPoint = (spec.width * 2.2).clamp(10.0, 60.0).toInt();
-
-    for (final p in points) {
-      for (int i = 0; i < dotsPerPoint; i++) {
-        final a = rnd.nextDouble() * math.pi * 2;
-        final r = rnd.nextDouble() * radius;
-        final off = Offset(math.cos(a) * r, math.sin(a) * r);
-        canvas.drawCircle(p + off, rnd.nextDouble() * 1.2 + 0.6, dotPaint);
-      }
+    for (final dot in sprayDots!) {
+      canvas.drawCircle(dot, 1.0, dotPaint);
     }
   }
 
